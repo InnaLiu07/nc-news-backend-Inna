@@ -27,4 +27,10 @@ ORDER BY articles.created_at DESC`;
     .then((results) => results.rows);
 };
 
-module.exports = { selectAllTopics, selectAllArticles };
+const selectAllUsers = () => {
+  return db
+    .query("SELECT * FROM users;")
+    .then((selectUsers) => selectUsers.rows);
+};
+
+module.exports = { selectAllTopics, selectAllArticles, selectAllUsers };
