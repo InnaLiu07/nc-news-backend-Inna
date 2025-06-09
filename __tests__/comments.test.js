@@ -18,7 +18,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
         const { comments } = body;
         expect(comments.length).toBe(11);
         comments.forEach((comment) => {
@@ -31,7 +30,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("GET - 404 with msg: comments for this article not found, when doesn't hve comments", () => {
+  test("GET - 404 with msg: comments for this article not found, when doesn't have comments", () => {
     return request(app)
       .get("/api/articles/12345/comments")
       .expect(404)
