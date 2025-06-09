@@ -33,4 +33,28 @@ const selectAllUsers = () => {
     .then((selectUsers) => selectUsers.rows);
 };
 
-module.exports = { selectAllTopics, selectAllArticles, selectAllUsers };
+const selectAllArticlesById = (article_id) => {
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid article_id" });
+  }
+
+  const articlesStrById = `
+    SELECT article_id, title, author, topic, created_at, votes, article_img_url
+    FROM articles
+    WHERE article_id = $1;
+  `;
+
+  return db.query(articlesStrById, [article_id]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article not found" });
+    }
+    return rows[0];
+  });
+};
+
+module.exports = {
+  selectAllTopics,
+  selectAllArticles,
+  selectAllUsers,
+  selectAllArticlesById,
+};
