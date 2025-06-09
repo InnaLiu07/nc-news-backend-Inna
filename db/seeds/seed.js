@@ -73,7 +73,7 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         convertTimestampToDate(article)
       );
       const sqlStringForArticles = format(
-        `INSERT INTO articles (title, author, topic, body, created_at, votes, article_img_url) VALUES %L`,
+        `INSERT INTO articles (title, author, topic, body, created_at, votes, article_img_url) VALUES %L RETURNING * `,
         formattedArticles.map((article) => [
           article.title,
           article.author,
@@ -86,15 +86,25 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       return db.query(sqlStringForArticles);
     })
-    .then(() => {
+    .then((articleRows) => {
+      const createRef = (arr, key, value) => {
+        return arr.reduce((ref, element) => {
+          ref[element[key]] = element[value];
+          return ref;
+        }, {});
+      };
       const formattedComments = commentData.map((comment) =>
         convertTimestampToDate(comment)
       );
-
+      const articleIdLookup = createRef(
+        articleRows.rows,
+        "title",
+        "article_id"
+      );
       const sqlStringForComments = format(
         `INSERT INTO comments (article_id, body, votes, author, created_at) VALUES %L`,
         formattedComments.map((comment) => [
-          comment.article_id,
+          articleIdLookup[comment.article_title],
           comment.body,
           comment.votes,
           comment.author,
