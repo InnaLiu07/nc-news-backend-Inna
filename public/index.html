@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Documentation</title>
+  </head>
+  <body>
+    <header>
+      <h1>/topics</h1>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="#get-topics">GET /api/topics</a></li>
+        <li><a href="#get-articles">GET /api/articles</a></li>
+        <li><a href="#get-users">GET /api/users</a></li>
+        <li><a href="#get-article-by-id">GET /api/articles/:article_id</a></li>
+        <li>
+          <a href="#get-comments-by-article-id"
+            >GET /api/articles/:article_id/comments</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <section id="get-article-by-id">
+      <h2>GET /api/articles/34</h2>
+      <p>Serves the article with ID 34.</p>
+
+      <h3>Example Request</h3>
+      <pre><code>GET /api/articles/34 HTTP/1.1
+Host: example.com</code></pre>
+
+      <h3>Example Response</h3>
+      <pre><code>{
+  "article": {
+    "article_id": 34,
+    "title": "The Notorious MSG’s Unlikely Formula For Success",
+    "author": "grumpy19",
+    "topic": "cooking",
+    "created_at": "2020-11-22T11:13:00.000Z",
+    "votes": 0,
+    "article_img_url": "https://images.pexels.com/photos/2403392/pexels-photo-2403392.jpeg?w=700&h=700"
+  }
+}</code></pre>
+    </section>
+  </body>
+</html>
