@@ -4,7 +4,7 @@
   "description": "bc-nc-news",
   "main": "listen.js",
   "scripts": {
-    "setup-dbs": "psql -U macbook -d postgres -f ./db/setup-dbs.sql",
+    "setup-dbs": "psql -U macbook -d postgres -p 5433 -f ./db/setup-dbs.sql",
     "test": "jest --runInBand",
     "prepare": "husky install",
     "test-seed": "jest seed.test.js",
