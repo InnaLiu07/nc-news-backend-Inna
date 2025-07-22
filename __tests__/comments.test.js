@@ -11,7 +11,37 @@ beforeEach(() => {
 afterAll(() => {
   return db.end();
 });
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the comment and returns no content", () => {
+    return request(app)
+      .delete("/api/comments/2")
+      .expect(204)
+      .then(() => {
+        return db.query(`SELECT * FROM comments WHERE comment_id = 2;`);
+      })
+      .then((result) => {
+        expect(result.rows.length).toBe(0);
+      });
+  });
 
+  test("404: returns error if comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
+
+  test("400: returns error for invalid comment_id", () => {
+    return request(app)
+      .delete("/api/comments/not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid comment_id format");
+      });
+  });
+});
 describe("GET /api/articles/:article_id/comments", () => {
   test("GET - 200: responds with an array of comments for a valid article_id", () => {
     return request(app)

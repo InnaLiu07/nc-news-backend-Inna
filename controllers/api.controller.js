@@ -1,10 +1,10 @@
-const { request } = require("../app.js");
 const endpoints = require("../endpoints.json");
 const { selectAllTopics } = require("../models/topics.models.js");
 const { selectAllArticles } = require("../models/topics.models.js");
 const { selectAllUsers } = require("../models/topics.models.js");
 const { selectAllArticlesById } = require("../models/topics.models.js");
 const { selectCommentsByArticlesId } = require("../models/topics.models.js");
+const { updateArticleVotes } = require("../models/topics.models.js");
 
 getApiEndpoints = (req, res) => {
   res.status(200).send(endpoints);
@@ -52,6 +52,22 @@ const getCommentsByArticlesId = (req, res, next) => {
     })
     .catch(next);
 };
+const patchArticleVotes = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  if (typeof inc_votes !== "number") {
+    return res
+      .status(400)
+      .send({ msg: "Bad request: inc_votes must be a number" });
+  }
+
+  updateArticleVotes(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ article: updatedArticle });
+    })
+    .catch(next);
+};
 
 module.exports = {
   getApiEndpoints,
@@ -60,4 +76,5 @@ module.exports = {
   getUsers,
   getArticlesById,
   getCommentsByArticlesId,
+  patchArticleVotes,
 };

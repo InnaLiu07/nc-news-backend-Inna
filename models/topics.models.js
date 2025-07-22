@@ -39,7 +39,7 @@ const selectAllArticlesById = (article_id) => {
   }
 
   const articlesStrById = `
-    SELECT article_id, title, author, topic, created_at, votes, article_img_url
+    SELECT article_id, title, author, topic, created_at, votes, article_img_url, body
     FROM articles
     WHERE article_id = $1;
   `;
@@ -77,6 +77,27 @@ ORDER BY comments.created_at DESC`;
     return rows;
   });
 };
+const updateArticleVotes = (article_id, inc_votes) => {
+  if (typeof inc_votes !== "number") {
+    return Promise.reject({ status: 400, msg: "Invalid vote increment" });
+  }
+  return db
+    .query(
+      `
+      UPDATE articles
+      SET votes = votes + $1
+      WHERE article_id = $2
+      RETURNING *;
+    `,
+      [inc_votes, article_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      return result.rows[0];
+    });
+};
 
 module.exports = {
   selectAllTopics,
@@ -84,4 +105,5 @@ module.exports = {
   selectAllUsers,
   selectAllArticlesById,
   selectCommentsByArticlesId,
+  updateArticleVotes,
 };
