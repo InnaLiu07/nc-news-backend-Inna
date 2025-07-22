@@ -12,7 +12,7 @@ const deleteComment = (req, res, next) => {
       if (!wasDeleted) {
         return res.status(404).send({ msg: "Comment not found" });
       }
-      res.status(204).send();
+      res.status(204).send({ msg: "Comment deleted" });
     })
     .catch((err) => {
       console.error("DELETE error:", err);

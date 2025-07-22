@@ -6,25 +6,44 @@ const selectAllTopics = () => {
     .then((selectTopics) => selectTopics.rows);
 };
 
-const selectAllArticles = () => {
-  const articlesStr = `SELECT 
-  articles.article_id,
-  articles.title,
-  articles.author,
-  articles.topic,
-  articles.created_at,
-  articles.votes,
-  articles.article_img_url,
-  COUNT(comments.comment_id)::INT AS comment_count
-FROM articles
-LEFT JOIN comments ON comments.article_id = articles.article_id
-GROUP BY articles.article_id
-ORDER BY articles.created_at DESC`;
-  console.log(selectAllArticles);
-  return db
-    .query(articlesStr)
+const selectAllArticles = (sort_by = "created_at", order = "desc") => {
+  const validSortBy = [
+    "article_id",
+    "title",
+    "author",
+    "topic",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+  const validOrder = ["asc", "desc"];
 
-    .then((results) => results.rows);
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by query" });
+  }
+
+  if (!validOrder.includes(order.toLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+
+  const queryStr = `
+    SELECT 
+      articles.article_id,
+      articles.title,
+      articles.author,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      COUNT(comments.comment_id)::INT AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order.toUpperCase()};
+  `;
+
+  return db.query(queryStr).then((results) => results.rows);
 };
 
 const selectAllUsers = () => {

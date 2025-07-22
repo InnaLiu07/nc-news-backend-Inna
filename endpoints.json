@@ -17,6 +17,19 @@
         "article_img_url": "https://images.pexels.com/photos/2403392/pexels-photo-2403392.jpeg?w=700&h=700"
       }
     },
+    "DELETE /api/comments/:comment_id": {
+      "description": "Deletes the comment with the given comment_id.",
+      "responses": {
+        "204": "No content – comment deleted successfully",
+        "404": {
+          "msg": "Comment not found"
+        },
+        "400": {
+          "msg": "Invalid comment_id format"
+        }
+      }
+    },
+
     "PATCH /api/articles/:article_id": {
       "description": "increments or decrements votes on an article by the given article_id",
       "requestBody": {

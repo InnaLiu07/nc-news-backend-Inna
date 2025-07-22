@@ -1,5 +1,75 @@
 const request = require("supertest");
 const app = require("../app");
+const db = require("../db/connection");
+const seed = require("../db/seeds/seed");
+const testData = require("../db/data/test-data");
+
+beforeEach(() => seed(testData));
+afterAll(() => db.end());
+
+describe("GET /api/articles (with queries)", () => {
+  test("200: sorts by 'title' ascending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        expect(Array.isArray(articles)).toBe(true);
+        const isSorted = articles.every((a, i, arr) => {
+          return i === 0 || a.title >= arr[i - 1].title;
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  test("200: sorts by 'votes' descending (default order)", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        expect(Array.isArray(articles)).toBe(true);
+        const isSorted = articles.every((a, i, arr) => {
+          return i === 0 || a.votes <= arr[i - 1].votes;
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  test("200: uses default sort_by=created_at and order=desc", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        expect(Array.isArray(articles)).toBe(true);
+        const isSorted = articles.every((a, i, arr) => {
+          return (
+            i === 0 || new Date(a.created_at) <= new Date(arr[i - 1].created_at)
+          );
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  test("400: invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_a_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort_by query");
+      });
+  });
+
+  test("400: invalid order value", () => {
+    return request(app)
+      .get("/api/articles?order=sideways")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
+});
 
 describe("PATCH /api/articles/:article_id", () => {
   test("200: increments votes and returns updated article", () => {

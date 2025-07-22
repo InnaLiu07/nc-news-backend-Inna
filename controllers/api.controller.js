@@ -19,12 +19,15 @@ const getTopics = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
-  selectAllArticles()
+  const { sort_by, order } = req.query;
+
+  selectAllArticles(sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
     .catch(next);
 };
+
 const getUsers = (req, res, next) => {
   selectAllUsers()
     .then((users) => {
@@ -32,6 +35,7 @@ const getUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
 const getArticlesById = (req, res, next) => {
   const { article_id } = req.params;
   selectAllArticlesById(article_id)
