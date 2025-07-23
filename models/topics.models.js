@@ -6,7 +6,7 @@ const selectAllTopics = () => {
     .then((selectTopics) => selectTopics.rows);
 };
 
-const selectAllArticles = (sort_by = "created_at", order = "desc") => {
+const selectAllArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortBy = [
     "article_id",
     "title",
@@ -15,7 +15,6 @@ const selectAllArticles = (sort_by = "created_at", order = "desc") => {
     "created_at",
     "votes",
     "article_img_url",
-    "comment_count",
   ];
   const validOrder = ["asc", "desc"];
 
@@ -27,23 +26,53 @@ const selectAllArticles = (sort_by = "created_at", order = "desc") => {
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
-  const queryStr = `
-    SELECT 
-      articles.article_id,
-      articles.title,
-      articles.author,
-      articles.topic,
-      articles.created_at,
-      articles.votes,
-      articles.article_img_url,
-      COUNT(comments.comment_id)::INT AS comment_count
-    FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id
-    GROUP BY articles.article_id
-    ORDER BY ${sort_by} ${order.toUpperCase()};
-  `;
+  if (!topic) {
+    const query = `
+      SELECT 
+        articles.article_id,
+        articles.title,
+        articles.author,
+        articles.topic,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url,
+        COUNT(comments.comment_id)::INT AS comment_count
+      FROM articles
+      LEFT JOIN comments ON comments.article_id = articles.article_id
+      GROUP BY articles.article_id
+      ORDER BY ${sort_by} ${order};
+    `;
 
-  return db.query(queryStr).then((results) => results.rows);
+    return db.query(query).then(({ rows }) => rows);
+  }
+
+  return db
+    .query(`SELECT slug FROM topics WHERE slug = $1`, [topic])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Topic not found" });
+      }
+
+      const query = `
+        SELECT 
+          articles.article_id,
+          articles.title,
+          articles.author,
+          articles.topic,
+          articles.created_at,
+          articles.votes,
+          articles.article_img_url,
+          COUNT(comments.comment_id)::INT AS comment_count
+        FROM articles
+        LEFT JOIN comments ON comments.article_id = articles.article_id
+        WHERE articles.topic = $1
+        GROUP BY articles.article_id
+        ORDER BY ${sort_by} ${order};
+      `;
+
+      return db.query(query, [topic]);
+    })
+    .then(({ rows }) => rows);
 };
 
 const selectAllUsers = () => {

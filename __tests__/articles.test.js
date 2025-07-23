@@ -7,6 +7,30 @@ const testData = require("../db/data/test-data");
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
+describe("GET /api/articles?topic=mitch", () => {
+  test("200: returns only articles with topic 'mitch'", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles.length).toBeGreaterThan(0);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+
+  test("404: returns error when topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=nonexistent")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
+});
+
 describe("GET /api/articles (with queries)", () => {
   test("200: sorts by 'title' ascending", () => {
     return request(app)
