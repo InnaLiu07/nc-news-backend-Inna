@@ -93,6 +93,11 @@ describe("GET /api/articles (with queries)", () => {
         expect(body.msg).toBe("Invalid order query");
       });
   });
+  test("GET /api/articles/:article_id includes comment_count", async () => {
+    const res = await request(app).get("/api/articles/1").expect(200);
+    expect(res.body.article).toHaveProperty("comment_count");
+    expect(typeof res.body.article.comment_count).toBe("number");
+  });
 });
 
 describe("PATCH /api/articles/:article_id", () => {

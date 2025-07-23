@@ -86,19 +86,31 @@ const selectAllArticlesById = (article_id) => {
     return Promise.reject({ status: 400, msg: "Invalid article_id" });
   }
 
-  const articlesStrById = `
-    SELECT article_id, title, author, topic, created_at, votes, article_img_url, body
+  const queryStr = `
+    SELECT 
+      articles.article_id,
+      articles.title,
+      articles.author,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      articles.body,
+      COUNT(comments.comment_id)::INT AS comment_count
     FROM articles
-    WHERE article_id = $1;
+    LEFT JOIN comments ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id;
   `;
 
-  return db.query(articlesStrById, [article_id]).then(({ rows }) => {
+  return db.query(queryStr, [article_id]).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Article not found" });
     }
     return rows[0];
   });
 };
+
 const selectCommentsByArticlesId = (article_id) => {
   if (isNaN(article_id)) {
     return Promise.reject({ status: 400, msg: "Invalid article_id" });
